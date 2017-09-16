@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>哟哟，切克闹</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="css/mui.min.css">
+		<style type="text/css">
+			#list {
+				/*避免导航边框和列表背景边框重叠，看起来像两条边框似得；*/
+				margin-top: -1px;
+			}
+            form{
+                font-size:small;
+            }
+            .mui-content{
+                margin-top:8px;
+            }
+            .mui-icon-arrowdown{
+                position: absolute;
+                top: 12px;
+                font-size: small;
+            }
+            .mui-input-clear{
+                font-size: small;
+            }
+		</style>
+	</head>
+	<body>
+        <header class="mui-bar mui-bar-nav">
+            <h1 class="mui-title">哟哟，切克闹</h1>
+        </header>
+		<div class="mui-content">
+            <form class="mui-input-group">
+                <div class="mui-input-row">
+                    <label>计算内容</label>
+                    <label id="type" data="1" type="text" style="width:auto;padding: 11px 15px 11px 0;">补仓后均价</label>
+                    <span class="mui-icon mui-icon-arrowdown"></span>
+                </div>
+                <div class="mui-input-row" id="bch" style="display:none;">
+                    <label>补仓后均价</label>
+                    <input id="bchjj" type="number" class="mui-input-clear" placeholder="请输入" value="5">
+                </div>
+                <div class="mui-input-row">
+                    <label>当前均价</label>
+                    <input id="qqjj" type="number" class="mui-input-clear" placeholder="请输入" value="8.2">
+                </div>
+                <div class="mui-input-row">
+                    <label>当前股票数量</label>
+                    <input id="qqsl" type="number" class="mui-input-clear" placeholder="请输入" value="1900">
+                </div>
+                <div class="mui-input-row">
+                    <label>补仓每股均价</label>
+                    <input id="bcjj" type="number" class="mui-input-clear" placeholder="请输入" value="4.4">
+                </div>
+                <div class="mui-input-row" id="bc">
+                    <label>补仓股票数量</label>
+                    <input id="bcsl" type="number" class="mui-input-clear" placeholder="请输入" value="2000">
+                </div>
+                <div class="mui-input-row">
+                    <label id="resname">补仓后均价</label>
+                    <label id="resval" type="text" style="width:auto;padding: 11px 15px 11px 0;"></label>
+                </div>
+                <div class="mui-button-row">
+                    <button id="reset" type="button" class="mui-btn mui-btn-danger">重置</button>
+                    <button id="confirm" type="button" class="mui-btn mui-btn-primary">确认</button>
+                </div>
+            </form>
+
+            <div id="sheet" class="mui-popover mui-popover-bottom mui-popover-action ">
+                <ul class="mui-table-view">
+                    <li class="mui-table-view-cell">
+                        <a href="#" onclick="TypeSelect(1)">补仓后均价</a>
+                    </li>
+                    <li class="mui-table-view-cell">
+                        <a href="#" onclick="TypeSelect(2)">补仓股票数量</a>
+                    </li>
+                </ul>
+                <ul class="mui-table-view">
+                    <li class="mui-table-view-cell">
+                        <a href="#sheet"><b>取消</b></a>
+                    </li>
+                </ul>
+            </div>
+		</div>
+		<script src="js/mui.min.js"></script>
+        <script src="js/jquery-1.11.0.js"></script>
+		<script>
+
+            $(function () {
+                $("#type").bind("click", function () {
+                    mui('#sheet').popover('toggle');
+                })
+                $("#confirm").bind("click",function(){
+                    Confirm();
+                })
+            });
+
+            function TypeSelect(type) {
+                $("#resval").html("");
+                if(type=="1"){
+                    $("#type").attr("data",type);
+                    $("#type").html("补仓后成本均价");
+                    $("#resname").html("补仓后成本均价");
+                    $("#bch").hide();
+                    $("#bc").show();
+                }
+                else if(type=="2"){
+                    $("#type").attr("data",type);
+                    $("#type").html("补仓股票数量");
+                    $("#resname").html("补仓股票数量");
+                    $("#bc").hide();
+                    $("#bch").show();
+                }
+                mui('#sheet').popover('toggle');
+            }
+            function Confirm(){
+                var type = $("#type").attr("data");
+                var bchjj = $("#bchjj").val() || 0.0;
+                var qqjj = $("#qqjj").val() || 0.0;
+                var qqsl = $("#qqsl").val() || 0.0;
+                var bcjj = $("#bcjj").val() || 0.0;
+                var bcsl = $("#bcsl").val() || 0.0;
+                bchjj = parseFloat(bchjj);
+                qqjj = parseFloat(qqjj);
+                qqsl = parseFloat(qqsl);
+                bcjj = parseFloat(bcjj);
+                bcsl = parseFloat(bcsl);
+                //计算补仓后成本均价
+                if(type=="1"){
+                    junj(qqjj, qqsl, bcjj, bcsl);
+                }
+                //计算补仓股票数量菜单
+                else if(type=="2"){
+                    count(bchjj, qqjj, qqsl, bcjj);
+                }
+            }
+            //计算补仓股票数量
+            function count(bchjj, qqjj, qqsl, bcjj) {
+                if (bchjj <= 0) {
+                    alert("补仓后均价 -->" + " 输入有误");
+                    return;
+                }
+                if (qqjj <= 0) {
+                    alert("当前均价 -->" + " 输入有误");
+                    return;
+                }
+                if (qqsl <= 0) {
+                    alert("当前股票数量 -->" + " 输入有误");
+                    return;
+                }
+                if (bcjj <= 0) {
+                    alert("补仓每股均价 -->" + " 输入有误");
+                    return;
+                }
+
+                var bcsl = (bchjj * qqsl - qqjj * qqsl) / (bcjj - bchjj);
+
+                bcsl = parseInt(bcsl);
+
+                $("#resval").html(bcsl + "手");
+            }
+
+            //计算补仓后成本均价
+            function junj(qqjj, qqsl, bcjj, bcsl) {
+                if (qqjj <= 0) {
+                    alert("当前均价 -->" + " 输入有误");
+                    return;
+                }
+                if (qqsl <= 0) {
+                    alert("当前股票数量 -->" + " 输入有误");
+                    return;
+                }
+                if (bcjj <= 0) {
+                    alert("  -->" + " 输入有误");
+                    return;
+                }
+                if (bcsl <= 0) {
+                    alert("补仓股票数量 -->" + " 输入有误");
+                    return;
+                }
+
+                var bchjj = (qqjj * qqsl + bcjj * bcsl) / (qqsl + bcsl);
+
+                bchjj = bchjj.toFixed(2);
+
+                $("#resval").html(bchjj + "元");
+            }
+		</script>
+	</body>
+
+</html>
