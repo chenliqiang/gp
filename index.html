@@ -34,7 +34,7 @@
             <h1 class="mui-title">哟哟，切克闹</h1>
         </header>
 		<div class="mui-content">
-            <form class="mui-input-group">
+            <form class="mui-input-group" id="formgp">
                 <div class="mui-input-row">
                     <label>计算内容</label>
                     <label id="type" data="1" type="text" style="width:auto;padding: 11px 15px 11px 0;">补仓后均价</label>
@@ -69,7 +69,7 @@
                     <label id="bcje" type="text" style="width:auto;padding: 11px 15px 11px 0;"></label>
                 </div>
                 <div class="mui-button-row">
-                    <button type="reset" class="mui-btn mui-btn-danger">重置</button>
+                    <button id="resetbtn" type="button" class="mui-btn mui-btn-danger">重置</button>
                     <button id="confirm" type="button" class="mui-btn mui-btn-primary">确认</button>
                 </div>
             </form>
@@ -131,6 +131,11 @@
                         this.compute(type, bchjj, qqjj, qqsl, bcjj, bcsl);
                     }
                 },
+                reset: function () {
+                    $("#formgp")[0].reset();
+                    $("#resval").html("");
+                    $("#bcje").html("");
+                },
                 check: function (type, bchjj, qqjj, qqsl, bcjj, bcsl) {
                     if (type == "2" && bchjj <= 0) {
                         alert("补仓后均价 -->" + " 输入有误");
@@ -179,10 +184,13 @@
             $(function () {
                 $("#type").bind("click", function () {
                     mui('#sheet').popover('toggle');
-                })
-                $("#confirm").bind("click",function(){
+                });
+                $("#confirm").bind("click", function () {
                     gp.confirm();
-                })
+                });
+                $("#resetbtn").bind("click", function () {
+                    gp.reset();
+                });
             });
             
 		</script>
