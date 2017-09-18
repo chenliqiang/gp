@@ -41,28 +41,32 @@
                     <span class="mui-icon mui-icon-arrowdown"></span>
                 </div>
                 <div class="mui-input-row" id="bch" style="display:none;">
-                    <label>补仓后均价</label>
+                    <label>补仓后均价(元)</label>
                     <input id="bchjj" type="number" class="mui-input-clear" placeholder="请输入" value="">
                 </div>
                 <div class="mui-input-row">
-                    <label>当前均价</label>
+                    <label>当前均价(元)</label>
                     <input id="qqjj" type="number" class="mui-input-clear" placeholder="请输入" value="">
                 </div>
                 <div class="mui-input-row">
-                    <label>当前股票数量</label>
+                    <label>当前股票数量(手)</label>
                     <input id="qqsl" type="number" class="mui-input-clear" placeholder="请输入" value="">
                 </div>
                 <div class="mui-input-row">
-                    <label>补仓每股均价</label>
+                    <label>补仓每股均价(元)</label>
                     <input id="bcjj" type="number" class="mui-input-clear" placeholder="请输入" value="">
                 </div>
                 <div class="mui-input-row" id="bc">
-                    <label>补仓股票数量</label>
+                    <label>补仓股票数量(手)</label>
                     <input id="bcsl" type="number" class="mui-input-clear" placeholder="请输入" value="">
                 </div>
                 <div class="mui-input-row">
-                    <label id="resname">补仓后均价</label>
+                    <label id="resname">补仓后均价(元)</label>
                     <label id="resval" type="text" style="width:auto;padding: 11px 15px 11px 0;"></label>
+                </div>
+                <div class="mui-input-row">
+                    <label>补仓金额(元)</label>
+                    <label id="bcje" type="text" style="width:auto;padding: 11px 15px 11px 0;"></label>
                 </div>
                 <div class="mui-button-row">
                     <button type="reset" class="mui-btn mui-btn-danger">重置</button>
@@ -73,10 +77,10 @@
             <div id="sheet" class="mui-popover mui-popover-bottom mui-popover-action ">
                 <ul class="mui-table-view">
                     <li class="mui-table-view-cell">
-                        <a href="#" onclick="TypeSelect(1)">补仓后均价</a>
+                        <a href="#" onclick="gp.typeSelect('1','补仓后均价')">补仓后均价</a>
                     </li>
                     <li class="mui-table-view-cell">
-                        <a href="#" onclick="TypeSelect(2)">补仓股票数量</a>
+                        <a href="#" onclick="gp.typeSelect('2', '补仓股票数量')">补仓股票数量</a>
                     </li>
                 </ul>
                 <ul class="mui-table-view">
@@ -90,105 +94,97 @@
         <script src="js/jquery-1.11.0.js"></script>
 		<script>
 
+            var gp = {
+                init: function (type, name) {
+                    $("#resval").html("");
+                    $("#bcje").html("");
+                    $("#type").attr("data", type);
+                    $("#type").html(name);
+                    if (type == "1") {
+                        $("#resname").html(name + "(元)");
+                        $("#bch").hide();
+                        $("#bc").show();
+                    }
+                    else {
+                        $("#resname").html(name + "(手)");
+                        $("#bc").hide();
+                        $("#bch").show();
+                    }
+                },
+                typeSelect: function (type, name) {
+                    this.init(type, name);
+                    mui('#sheet').popover('toggle');
+                },
+                confirm: function () {
+                    var type = $("#type").attr("data");
+                    var bchjj = $("#bchjj").val() || 0.0;
+                    var qqjj = $("#qqjj").val() || 0.0;
+                    var qqsl = $("#qqsl").val() || 0;
+                    var bcjj = $("#bcjj").val() || 0.0;
+                    var bcsl = $("#bcsl").val() || 0;
+                    bchjj = parseFloat(bchjj);
+                    qqjj = parseFloat(qqjj);
+                    qqsl = parseInt(qqsl);
+                    bcjj = parseFloat(bcjj);
+                    bcsl = parseInt(bcsl);
+                    if (this.check(type, bchjj, qqjj, qqsl, bcjj, bcsl)) {
+                        this.compute(type, bchjj, qqjj, qqsl, bcjj, bcsl);
+                    }
+                },
+                check: function (type, bchjj, qqjj, qqsl, bcjj, bcsl) {
+                    if (type == "2" && bchjj <= 0) {
+                        alert("补仓后均价 -->" + " 输入有误");
+                        return false;
+                    }
+                    if (qqjj <= 0) {
+                        alert("当前均价 -->" + " 输入有误");
+                        return false;
+                    }
+                    if (qqsl <= 0) {
+                        alert("当前股票数量 -->" + " 输入有误");
+                        return false;
+                    }
+                    if (bcjj <= 0) {
+                        alert("补仓每股均价 -->" + " 输入有误");
+                        return false;
+                    }
+                    if (type == "1" && bcsl <= 0) {
+                        alert("补仓股票数量 -->" + " 输入有误");
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                },
+                compute: function (type, bchjj, qqjj, qqsl, bcjj, bcsl) {
+                    //补仓后均价
+                    if (type == "1") {
+                        var bchjj = (qqjj * qqsl + bcjj * bcsl) / (qqsl + bcsl);
+                        var bcje = parseInt(bcjj * bcsl);
+                        bchjj = bchjj.toFixed(2);
+                        $("#resval").html(bchjj);
+                        $("#bcje").html(bcje);
+                    }
+                        //补仓股票数量
+                    else if (type == "2") {
+                        var bcsl = (bchjj * qqsl - qqjj * qqsl) / (bcjj - bchjj);
+                        var bcje = parseInt(bcjj * bcsl);
+                        bcsl = parseInt(bcsl);
+                        $("#resval").html(bcsl);
+                        $("#bcje").html(bcje);
+                    }
+                }
+            }
+
             $(function () {
                 $("#type").bind("click", function () {
                     mui('#sheet').popover('toggle');
                 })
                 $("#confirm").bind("click",function(){
-                    Confirm();
+                    gp.confirm();
                 })
             });
-
-            function TypeSelect(type) {
-                $("#resval").html("");
-                if(type=="1"){
-                    $("#type").attr("data",type);
-                    $("#type").html("补仓后成本均价");
-                    $("#resname").html("补仓后成本均价");
-                    $("#bch").hide();
-                    $("#bc").show();
-                }
-                else if(type=="2"){
-                    $("#type").attr("data",type);
-                    $("#type").html("补仓股票数量");
-                    $("#resname").html("补仓股票数量");
-                    $("#bc").hide();
-                    $("#bch").show();
-                }
-                mui('#sheet').popover('toggle');
-            }
-            function Confirm(){
-                var type = $("#type").attr("data");
-                var bchjj = $("#bchjj").val() || 0.0;
-                var qqjj = $("#qqjj").val() || 0.0;
-                var qqsl = $("#qqsl").val() || 0.0;
-                var bcjj = $("#bcjj").val() || 0.0;
-                var bcsl = $("#bcsl").val() || 0.0;
-                bchjj = parseFloat(bchjj);
-                qqjj = parseFloat(qqjj);
-                qqsl = parseFloat(qqsl);
-                bcjj = parseFloat(bcjj);
-                bcsl = parseFloat(bcsl);
-                //计算补仓后成本均价
-                if(type=="1"){
-                    junj(qqjj, qqsl, bcjj, bcsl);
-                }
-                //计算补仓股票数量菜单
-                else if(type=="2"){
-                    count(bchjj, qqjj, qqsl, bcjj);
-                }
-            }
-            //计算补仓股票数量
-            function count(bchjj, qqjj, qqsl, bcjj) {
-                if (bchjj <= 0) {
-                    alert("补仓后均价 -->" + " 输入有误");
-                    return;
-                }
-                if (qqjj <= 0) {
-                    alert("当前均价 -->" + " 输入有误");
-                    return;
-                }
-                if (qqsl <= 0) {
-                    alert("当前股票数量 -->" + " 输入有误");
-                    return;
-                }
-                if (bcjj <= 0) {
-                    alert("补仓每股均价 -->" + " 输入有误");
-                    return;
-                }
-
-                var bcsl = (bchjj * qqsl - qqjj * qqsl) / (bcjj - bchjj);
-
-                bcsl = parseInt(bcsl);
-
-                $("#resval").html(bcsl + "手");
-            }
-
-            //计算补仓后成本均价
-            function junj(qqjj, qqsl, bcjj, bcsl) {
-                if (qqjj <= 0) {
-                    alert("当前均价 -->" + " 输入有误");
-                    return;
-                }
-                if (qqsl <= 0) {
-                    alert("当前股票数量 -->" + " 输入有误");
-                    return;
-                }
-                if (bcjj <= 0) {
-                    alert("  -->" + " 输入有误");
-                    return;
-                }
-                if (bcsl <= 0) {
-                    alert("补仓股票数量 -->" + " 输入有误");
-                    return;
-                }
-
-                var bchjj = (qqjj * qqsl + bcjj * bcsl) / (qqsl + bcsl);
-
-                bchjj = bchjj.toFixed(2);
-
-                $("#resval").html(bchjj + "元");
-            }
+            
 		</script>
 	</body>
 
