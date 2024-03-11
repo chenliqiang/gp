@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="utf-8">
@@ -68,6 +68,10 @@
                     <label>补仓金额(元)</label>
                     <label id="bcje" type="text" style="width:auto;padding: 11px 15px 11px 0;"></label>
                 </div>
+                <div class="mui-input-row">
+                    <label>盈亏率(%)</label>
+                    <label id="ykl" type="text" style="width:auto;padding: 11px 15px 11px 0;"></label>
+                </div>
                 <div class="mui-button-row">
                     <button id="resetbtn" type="button" class="mui-btn mui-btn-danger">重置</button>
                     <button id="confirm" type="button" class="mui-btn mui-btn-primary">确认</button>
@@ -98,6 +102,7 @@
                 init: function (type, name) {
                     $("#resval").html("");
                     $("#bcje").html("");
+                    $("#ykl").html("");
                     $("#type").attr("data", type);
                     $("#type").html(name);
                     if (type == "1") {
@@ -165,18 +170,22 @@
                     //补仓后均价
                     if (type == "1") {
                         var bchjj = (qqjj * qqsl + bcjj * bcsl) / (qqsl + bcsl);
-                        var bcje = parseInt(bcjj * bcsl);
+                        var bcje = parseInt(bcjj * bcsl);                        
+                        var ykl = ((bcjj - bchjj)/qqjj * 100).toFixed(2) + "%";
                         bchjj = bchjj.toFixed(2);
                         $("#resval").html(bchjj);
                         $("#bcje").html(bcje);
+                        $("#ykl").html(ykl);
                     }
                         //补仓股票数量
-                    else if (type == "2") {
+                    else if (type == "2") {                        
                         var bcsl = (bchjj * qqsl - qqjj * qqsl) / (bcjj - bchjj);
+                        var ykl = ((bchjj - qqjj )/qqjj * 100).toFixed(2) + "%";
                         var bcje = parseInt(bcjj * bcsl);
-                        bcsl = parseInt(bcsl);
+                        bcsl = parseInt(bcsl);                        
                         $("#resval").html(bcsl);
                         $("#bcje").html(bcje);
+                        $("#ykl").html(ykl);
                     }
                 }
             }
