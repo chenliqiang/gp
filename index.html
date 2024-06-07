@@ -99,6 +99,7 @@
 		<script>
 
             var gp = {
+                cacheKey:"canglong.gp.base.data",
                 init: function (type, name) {
                     $("#resval").html("");
                     $("#bcje").html("");
@@ -140,6 +141,8 @@
                     $("#formgp")[0].reset();
                     $("#resval").html("");
                     $("#bcje").html("");
+                    $("#ykl").html("");
+                    localStorage.removeItem(cacheKey);
                 },
                 check: function (type, bchjj, qqjj, qqsl, bcjj, bcsl) {
                     if (type == "2" && bchjj <= 0) {
@@ -187,6 +190,15 @@
                         $("#bcje").html(bcje);
                         $("#ykl").html(ykl);
                     }
+                    
+                    var obj = {
+                        bchjj:bchjj,
+                        qqjj:qqjj,
+                        qqsl:qqsl,
+                        bcjj:bcjj,
+                        bcsl:bcsl
+                    };
+                    localStorage.setItem(gp.cacheKey,JSON.stringify(obj));
                 }
             }
 
@@ -200,6 +212,17 @@
                 $("#resetbtn").bind("click", function () {
                     gp.reset();
                 });
+                
+                var cache = localStorage.getItem(gp.cacheKey);
+                if(cache != null)
+                {
+                    var cacheObj = JSON.parse(cache);
+                    var bchjj = $("#bchjj").val(cacheObj.bchjj);
+                    var qqjj = $("#qqjj").val(cacheObj.qqjj);
+                    var qqsl = $("#qqsl").val(cacheObj.qqsl);
+                    var bcjj = $("#bcjj").val(cacheObj.bcjj);
+                    var bcsl = $("#bcsl").val(cacheObj.bcsl);
+                }
             });
             
 		</script>
